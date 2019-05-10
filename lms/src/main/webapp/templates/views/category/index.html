@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<div >
+    <h2 >No users yet!</h2>
+        <div >
+            <h2>List Category</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>URL</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:each="category : ${categories}">
+                    <td th:text="${category.name}"></td>
+                    <td th:text="${category.url}"></td>
+                    
+                    <td><a th:href="@{/edit/{id}(id=${category.url})}">Edit</a></td>
+                    <td><a th:href="@{/delete/{id}(id=${category.url})}">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>      
+    <p><a th:href="@{/c/create}">Add a new user</a></p>
+</div>
+</body>
+</html>
