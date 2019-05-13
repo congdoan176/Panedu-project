@@ -1,16 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/admin}" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="ISO-8859-1">
 <title>Insert title here</title>
 </head>
 <body>
-	<form action="#" th:action="@{/c/create}" th:object="${categories}" method="post">
-    <label for="name">Name</label>
-    <input type="text" name="name" id="name" placeholder="Name">
-    <label for="email">Url</label>
-    <input type="text" name="url" id="url" placeholder="URL">
-    <input type="submit" value="Add Category">   
-</form>
+	<div layout:fragment="contentAdmin">
+		<div>
+			<div class="">
+				<h1 class="h4 text-gray-900 mb-4">Create an Category!</h1>
+			</div>
+			<form class="user" action="#" th:action="@{/c/create}"
+				th:object="${categories}" method="post">
+				<div class="col-sm-4 my-3">
+					<input type="text" class="form-control form-control-user"
+						name="name" placeholder="Name category....">
+				</div>
+				<div class="col-sm-4 mb-3 mb-sm-0">
+					<input type="text" class="form-control form-control-user"
+						name="url" placeholder="Url category ....">
+				</div>
+				<div class="col-sm-1 mb-3 mb-sm-0">
+					<input class="my-2 btn-user" type="submit" value="Add Category">
+				</div>
+			</form>
+			<p>
+				<a th:href="@{/c}"> Back to List Category! </a>
+			</p>
+		</div>
+	</div>
 </body>
 </html>
