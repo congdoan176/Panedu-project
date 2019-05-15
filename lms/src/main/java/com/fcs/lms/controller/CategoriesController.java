@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.annotation.JacksonInject.Value;
 import com.fcs.lms.entity.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 
 @Controller
 public class CategoriesController {
@@ -65,14 +70,56 @@ public class CategoriesController {
 	public String formCreat() {
 		return "views/category/create";
 	}
+	
 	@GetMapping(value = "c/edit/{url}")
-	public String showUpdateForm(@PathVariable String name) {
-		
-		return "update-category";
+	public String showUpdateForm(@PathVariable("url") String url, Model model, HttpServletResponse resp,HttpServletRequest req) throws InterruptedException, ExecutionException {
+		Firestore db = FirestoreOptions.getDefaultInstance().getService();
+		ApiFuture<QuerySnapshot> future =
+			    db.collection("categories").whereEqualTo("url", url).get();
+			// future.get() blocks on response
+			List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+			Category category = new Category();
+			for (DocumentSnapshot document : documents) {
+			  System.out.println(document.getId());
+			  if (document.exists()) {
+				  // convert document to POJO
+				  category = document.toObject(Category.class);
+				  
+				  System.out.println(category);
+				} else {
+				  System.out.println("No such document!");
+				}
+			}
+			model.addAttribute("category", category);
+			LOGGER.info("Category :"+ category);
+			return "views/category/edit";
 	}
-	@PutMapping(value = "/c/edit")
-	public String updateCategory() {
-		return "views/category/edit";
+	@RequestMapping(value = "/c/update/{url}",method = RequestMethod.POST)
+	public void updateCategory(@PathVariable("url") String url, String name,Model model, HttpServletResponse resp) throws IOException, InterruptedException, ExecutionException {
+		Firestore db = FirestoreOptions.getDefaultInstance().getService();
+//		ApiFuture<QuerySnapshot> future =
+//			    db.collection("categories").whereEqualTo("url", url).get();
+		DocumentReference documentRe = db.collection("categories").document(url);
+		
+		// Confirm that data has been successfully saved by blocking on the operation
+		LOGGER.info("-----------" + documentRe);
+		ApiFuture<DocumentSnapshot> future = documentRe.get();
+		// ...
+		// future.get() blocks on response
+		DocumentSnapshot document = future.get();
+		if (document.exists()) {
+			Map<String, Object> upCategory = new HashMap<>();
+			upCategory.put("name",name);
+			upCategory.put("url",url);
+			LOGGER.info("Update*********** "+ upCategory);
+			model.addAttribute("category",upCategory);
+			
+			ApiFuture<WriteResult> futureCategory = documentRe.update(upCategory);
+		} else {
+		  System.out.println("No such document!");
+		}
+				
+		resp.sendRedirect("/c");
 	}
 	@GetMapping(value = "/c/delete/{id}")
 	public String deleteCategory() {

@@ -26,6 +26,7 @@ public class LmsApplication {
 		
 		SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
 		templateResolver.setApplicationContext(ctx);
+		templateResolver.setCharacterEncoding("UTF-8");
 		templateResolver.setPrefix("templates/");
 		templateResolver.setSuffix(".html");
 		templateResolver.setTemplateMode(TemplateMode.HTML);
